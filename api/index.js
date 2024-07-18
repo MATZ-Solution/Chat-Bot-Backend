@@ -24,68 +24,6 @@ client.connect();
 const database = client.db(DB_NAME);
 console.log("Connected to MongoDB!");
 
-// const getSortedData = async (collection, query, top) => {
-//     if (top) {
-//         query.scrapedAverageRating = { $exists: true };
-//     }
-//     const sortCriteria = top ? { scrapedAverageRating: -1, name: 1 } : { name: 1 };
-//     const data = await collection.find(query).sort(sortCriteria).limit(5).toArray();
-//     return data;
-// };
-
-// app.get("/api/:collectionKeyword", async (req, res) => {
-//     try {
-//         const { collectionKeyword } = req.params;
-//         const { top } = req.query;
-//         const collection = database.collection(collectionKeyword);
-//         const sortCriteria = top ? { scrapedAverageRating: -1, name: 1 } : { name: 1 };
-//         const data = await collection.find().sort(sortCriteria).limit(5).toArray();
-
-//         res.json(data);
-//     } catch (err) {
-//         console.error(`Something went wrong trying to find the documents: ${err}\n`);
-//         res.status(500).json({ error: "Internal Server Error" });
-//     }
-// });
-
-// // Route to fetch by zip code
-// app.get("/api/:collectionKeyword/zipCode/:zipCode", async (req, res) => {
-//     try {
-//         const { zipCode, collectionKeyword } = req.params;
-//         const { top } = req.query;
-//         const collection = database.collection(collectionKeyword);
-//         const data = await getSortedData(collection, { zipCode }, top);
-//         res.json(data);
-//     } catch (err) {
-//         console.error(`Error fetching ${collectionKeyword} by zip code: ${err}`);
-//         res.status(500).json({ error: "Internal Server Error" });
-//     }
-// });
-// app.get("/api/:collectionKeyword/city/:city", async (req, res) => {
-//     const { collectionKeyword, city } = req.params;
-//     try {
-//         const { top } = req.query;
-//         const collection = database.collection(collectionKeyword);
-//         const data = await getSortedData(collection, { city }, top);
-//         res.json(data);
-//     } catch (err) {
-//         console.error(`Something went wrong trying to find the documents: ${err}\n`);
-//         res.status(500).json({ error: "Internal Server Error" });
-//     }
-// });
-// app.get("/api/:collectionKeyword/state/:state", async (req, res) => {
-//     const { collectionKeyword, state } = req.params;
-//     try {
-//         const { top } = req.query;
-//         const collection = database.collection(collectionKeyword);
-//         const data = await getSortedData(collection, { state }, top);
-//         res.json(data);
-//     } catch (err) {
-//         console.error(`Something went wrong trying to find the documents: ${err}\n`);
-//         res.status(500).json({ error: "Internal Server Error" });
-//     }
-// });
-
 app.get("/", (req, res) => {
     res.send("Welcome to the Nursing Home API 2.0");
 });
@@ -118,8 +56,10 @@ app.get("/api/:category/fetch", async (req, res) => {
             filters.name = name;
         }
 
+        const sortCriteria = { 'scrapedAverageRating.stars': -1, overall_rating: -1, name: 1 };
+
         const collection = database.collection(category);
-        const data = await collection.find(filters).sort({ name: 1 }).limit(7).toArray();
+        const data = await collection.find(filters).sort(sortCriteria).limit(7).toArray();
 
         res.json(data);
     } catch (e) {
